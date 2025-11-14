@@ -14,7 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      complaints: {
+        Row: {
+          admin_feedback: string | null
+          category: Database["public"]["Enums"]["complaint_category"]
+          created_at: string
+          description: string
+          id: string
+          media_urls: string[] | null
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["complaint_status"]
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          admin_feedback?: string | null
+          category: Database["public"]["Enums"]["complaint_category"]
+          created_at?: string
+          description: string
+          id?: string
+          media_urls?: string[] | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["complaint_status"]
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          admin_feedback?: string | null
+          category?: Database["public"]["Enums"]["complaint_category"]
+          created_at?: string
+          description?: string
+          id?: string
+          media_urls?: string[] | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["complaint_status"]
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaints_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          batch: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          student_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          batch?: string | null
+          created_at?: string
+          email: string
+          id: string
+          name: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          student_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          batch?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          student_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +105,15 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      complaint_category:
+        | "electrical"
+        | "system"
+        | "hostel"
+        | "academic"
+        | "infrastructure"
+        | "other"
+      complaint_status: "pending" | "in_progress" | "resolved" | "emergency"
+      user_role: "student" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +240,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      complaint_category: [
+        "electrical",
+        "system",
+        "hostel",
+        "academic",
+        "infrastructure",
+        "other",
+      ],
+      complaint_status: ["pending", "in_progress", "resolved", "emergency"],
+      user_role: ["student", "admin"],
+    },
   },
 } as const
