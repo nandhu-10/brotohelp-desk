@@ -49,31 +49,36 @@ const StudentLogin = () => {
       setErrors({});
       setLoading(true);
 
-      // First, get the email associated with this student ID
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('email, role')
-        .eq('student_id', studentId)
-        .single();
+      // First, get the email associated with this student ID using the secure function
+      const { data: email, error: emailError } = await supabase
+        .rpc('get_email_by_student_id', { _student_id: studentId });
 
-      if (profileError || !profile) {
+      if (emailError || !email) {
         toast.error("Invalid Student ID");
         return;
       }
 
-      if (profile.role !== 'student') {
-        toast.error("This account is not a student account");
-        return;
-      }
-
       // Now login with the email
-      const { error } = await supabase.auth.signInWithPassword({
-        email: profile.email,
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
         password: password,
       });
 
       if (error) {
         toast.error("Invalid credentials");
+        return;
+      }
+
+      // Verify the user is a student
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profile?.role !== 'student') {
+        await supabase.auth.signOut();
+        toast.error("This account is not a student account");
         return;
       }
 
