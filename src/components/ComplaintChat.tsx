@@ -119,24 +119,24 @@ export const ComplaintChat = ({ complaintId, currentUserId }: ComplaintChatProps
   };
 
   return (
-    <div className="space-y-4">
-      <div className="bg-muted/50 rounded-lg p-4">
-        <h4 className="font-semibold mb-3 flex items-center gap-2">
+    <div className="space-y-3 md:space-y-4">
+      <div className="bg-muted/50 rounded-lg p-3 md:p-4">
+        <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm md:text-base">
           <Send className="h-4 w-4" />
           Chat with Admin
         </h4>
         
-        <ScrollArea className="h-[300px] mb-3 pr-4">
+        <ScrollArea className="h-[250px] md:h-[300px] mb-3 pr-2 md:pr-4">
           {loading ? (
             <div className="flex justify-center items-center h-full">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Loader2 className="h-5 w-5 md:h-6 md:w-6 animate-spin text-muted-foreground" />
             </div>
           ) : messages.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
+            <p className="text-xs md:text-sm text-muted-foreground text-center py-6 md:py-8">
               No messages yet. Start a conversation!
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 md:space-y-3">
               {messages.map((msg) => {
                 const isCurrentUser = msg.sender_id === currentUserId;
                 const senderName = msg.sender_profile?.name || 'Unknown';
@@ -148,22 +148,22 @@ export const ComplaintChat = ({ complaintId, currentUserId }: ComplaintChatProps
                     className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[80%] rounded-lg p-3 ${
+                      className={`max-w-[85%] md:max-w-[80%] rounded-lg p-2 md:p-3 ${
                         isCurrentUser
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-card border'
                       }`}
                     >
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="text-xs font-semibold">
+                      <div className="flex items-center gap-1.5 md:gap-2 mb-1">
+                        <p className="text-[10px] md:text-xs font-semibold">
                           {isCurrentUser ? 'You' : senderName}
                           {isAdmin && !isCurrentUser && ' (Admin)'}
                         </p>
-                        <p className="text-xs opacity-70">
+                        <p className="text-[10px] md:text-xs opacity-70">
                           {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
                         </p>
                       </div>
-                      <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                      <p className="text-xs md:text-sm whitespace-pre-wrap break-words">{msg.message}</p>
                     </div>
                   </div>
                 );
@@ -179,14 +179,14 @@ export const ComplaintChat = ({ complaintId, currentUserId }: ComplaintChatProps
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
             rows={2}
-            className="flex-1"
+            className="flex-1 text-sm md:text-base"
             disabled={sending}
           />
-          <Button type="submit" disabled={sending || !newMessage.trim()}>
+          <Button type="submit" disabled={sending || !newMessage.trim()} size="sm" className="h-auto">
             {sending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 md:h-4 md:w-4 animate-spin" />
             ) : (
-              <Send className="h-4 w-4" />
+              <Send className="h-3.5 w-3.5 md:h-4 md:w-4" />
             )}
           </Button>
         </form>
