@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { BrotoLogo } from "@/components/BrotoLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, LogOut, Plus, AlertCircle, Clock, CheckCircle2, PlayCircle } from "lucide-react";
+import { Loader2, LogOut, Plus, AlertCircle, Clock, CheckCircle2, PlayCircle, Phone, MessageSquare } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { CreateComplaintDialog } from "@/components/CreateComplaintDialog";
+import { ComplaintChat } from "@/components/ComplaintChat";
 import { formatDistanceToNow } from "date-fns";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Profile {
   name: string;
@@ -34,6 +36,7 @@ const StudentDashboard = () => {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [expandedChats, setExpandedChats] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     checkUser();
@@ -121,6 +124,10 @@ const StudentDashboard = () => {
           <div className="flex items-center justify-between">
             <BrotoLogo />
             <div className="flex items-center gap-4">
+              <a href="tel:8900089000" className="flex items-center gap-2 text-emergency hover:text-emergency/80 transition-colors">
+                <Phone className="h-4 w-4" />
+                <span className="font-semibold">Emergency: 89000 89000</span>
+              </a>
               <div className="text-right">
                 <p className="font-semibold">{profile?.name}</p>
                 <p className="text-sm text-muted-foreground">{profile?.student_id} • {profile?.batch}</p>
@@ -191,6 +198,29 @@ const StudentDashboard = () => {
                       <p className="text-sm">{complaint.admin_feedback}</p>
                     </div>
                   )}
+                  
+                  <Collapsible
+                    open={expandedChats.has(complaint.id)}
+                    onOpenChange={(open) => {
+                      const newSet = new Set(expandedChats);
+                      if (open) {
+                        newSet.add(complaint.id);
+                      } else {
+                        newSet.delete(complaint.id);
+                      }
+                      setExpandedChats(newSet);
+                    }}
+                  >
+                    <CollapsibleTrigger asChild>
+                      <Button variant="outline" className="w-full">
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        {expandedChats.has(complaint.id) ? 'Hide Chat' : 'Chat with Admin'}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-4">
+                      {user && <ComplaintChat complaintId={complaint.id} currentUserId={user.id} />}
+                    </CollapsibleContent>
+                  </Collapsible>
                 </CardContent>
               </Card>
             ))}

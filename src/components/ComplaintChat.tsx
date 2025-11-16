@@ -1,0 +1,196 @@
+import { useState, useEffect, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
+import { Send, Loader2 } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+
+interface Message {
+  id: string;
+  sender_id: string;
+  message: string;
+  created_at: string;
+  sender_profile?: {
+    name: string;
+    role: string;
+  };
+}
+
+interface ComplaintChatProps {
+  complaintId: string;
+  currentUserId: string;
+}
+
+export const ComplaintChat = ({ complaintId, currentUserId }: ComplaintChatProps) => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    loadMessages();
+    
+    // Subscribe to new messages
+    const channel = supabase
+      .channel(`complaint_messages_${complaintId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'complaint_messages',
+          filter: `complaint_id=eq.${complaintId}`
+        },
+        (payload) => {
+          loadMessages();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [complaintId]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const loadMessages = async () => {
+    setLoading(true);
+    const { data: messagesData, error: messagesError } = await supabase
+      .from('complaint_messages')
+      .select('id, sender_id, message, created_at')
+      .eq('complaint_id', complaintId)
+      .order('created_at', { ascending: true });
+
+    if (messagesError) {
+      toast.error("Failed to load messages");
+      setLoading(false);
+      return;
+    }
+
+    // Get sender profiles
+    const senderIds = [...new Set(messagesData.map(m => m.sender_id))];
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, name, role')
+      .in('id', senderIds);
+
+    const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+    
+    const messagesWithProfiles = messagesData.map(msg => ({
+      ...msg,
+      sender_profile: profilesMap.get(msg.sender_id)
+    }));
+
+    setMessages(messagesWithProfiles);
+    setLoading(false);
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+
+    setSending(true);
+    const { error } = await supabase
+      .from('complaint_messages')
+      .insert({
+        complaint_id: complaintId,
+        sender_id: currentUserId,
+        message: newMessage.trim(),
+      });
+
+    if (error) {
+      toast.error("Failed to send message");
+    } else {
+      setNewMessage("");
+    }
+    setSending(false);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-muted/50 rounded-lg p-4">
+        <h4 className="font-semibold mb-3 flex items-center gap-2">
+          <Send className="h-4 w-4" />
+          Chat with Admin
+        </h4>
+        
+        <ScrollArea className="h-[300px] mb-3 pr-4">
+          {loading ? (
+            <div className="flex justify-center items-center h-full">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : messages.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              No messages yet. Start a conversation!
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {messages.map((msg) => {
+                const isCurrentUser = msg.sender_id === currentUserId;
+                const senderName = msg.sender_profile?.name || 'Unknown';
+                const isAdmin = msg.sender_profile?.role === 'admin';
+                
+                return (
+                  <div
+                    key={msg.id}
+                    className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-lg p-3 ${
+                        isCurrentUser
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-card border'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-xs font-semibold">
+                          {isCurrentUser ? 'You' : senderName}
+                          {isAdmin && !isCurrentUser && ' (Admin)'}
+                        </p>
+                        <p className="text-xs opacity-70">
+                          {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
+                        </p>
+                      </div>
+                      <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={scrollRef} />
+            </div>
+          )}
+        </ScrollArea>
+
+        <form onSubmit={handleSendMessage} className="flex gap-2">
+          <Textarea
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type your message..."
+            rows={2}
+            className="flex-1"
+            disabled={sending}
+          />
+          <Button type="submit" disabled={sending || !newMessage.trim()}>
+            {sending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+};
