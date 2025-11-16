@@ -90,8 +90,8 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-secondary/5 to-primary/5">
-      <Card className="w-full max-w-md border-2 border-primary/20">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-primary/5 to-primary/10">
+      <Card className="w-full max-w-md border-2 border-primary/30 bg-gradient-to-br from-card to-primary/5">
         <CardHeader className="space-y-4">
           <div className="flex justify-center">
             <BrotoLogo />

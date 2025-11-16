@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -23,6 +23,12 @@ export const UpdateComplaintDialog = ({ open, onOpenChange, complaint, onSuccess
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(complaint.status);
   const [feedback, setFeedback] = useState(complaint.admin_feedback || "");
+
+  // Reset form when complaint changes
+  useEffect(() => {
+    setStatus(complaint.status);
+    setFeedback(complaint.admin_feedback || "");
+  }, [complaint.id, complaint.status, complaint.admin_feedback]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +79,6 @@ export const UpdateComplaintDialog = ({ open, onOpenChange, complaint, onSuccess
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="in_progress">In Progress</SelectItem>
                 <SelectItem value="resolved">Resolved</SelectItem>
-                <SelectItem value="emergency">Emergency</SelectItem>
               </SelectContent>
             </Select>
           </div>
