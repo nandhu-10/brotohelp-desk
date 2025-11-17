@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { BrotoLogo } from "@/components/BrotoLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Shield } from "lucide-react";
+import { Loader2, Shield, Home } from "lucide-react";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -93,7 +93,16 @@ const AdminLogin = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-primary/5 to-primary/10">
       <Card className="w-full max-w-md border-2 border-primary/30 bg-gradient-to-br from-card to-primary/5">
         <CardHeader className="space-y-4">
-          <div className="flex justify-center">
+          <div className="flex justify-between items-start">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="text-primary hover:text-primary/80"
+            >
+              <Home className="h-4 w-4 mr-2" />
+              Home
+            </Button>
             <BrotoLogo />
           </div>
           <div className="flex items-center justify-center gap-2">

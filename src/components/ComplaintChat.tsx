@@ -88,10 +88,19 @@ export const ComplaintChat = ({ complaintId, currentUserId }: ComplaintChatProps
 
     const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
     
-    const messagesWithProfiles = messagesData.map(msg => ({
-      ...msg,
-      sender_profile: profilesMap.get(msg.sender_id)
-    }));
+    const messagesWithProfiles = messagesData.map(msg => {
+      const profile = profilesMap.get(msg.sender_id);
+      return {
+        ...msg,
+        sender_profile: profile ? {
+          name: profile.role === 'admin' ? 'Admin' : profile.name,
+          role: profile.role
+        } : {
+          name: 'Unknown',
+          role: 'student'
+        }
+      };
+    });
 
     setMessages(messagesWithProfiles);
     setLoading(false);

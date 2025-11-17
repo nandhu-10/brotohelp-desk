@@ -52,7 +52,9 @@ export const UpdateComplaintDialog = ({ open, onOpenChange, complaint, onSuccess
     if (error) {
       toast.error("Failed to update complaint");
     } else {
-      toast.success("Complaint updated successfully!");
+      toast.success("Complaint updated successfully!", {
+        duration: 4000,
+      });
       onSuccess();
     }
     
