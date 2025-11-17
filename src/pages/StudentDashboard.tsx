@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { BrotoLogo } from "@/components/BrotoLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, LogOut, Plus, AlertCircle, Clock, CheckCircle2, PlayCircle, Phone, MessageSquare } from "lucide-react";
+import { Loader2, LogOut, Plus, AlertCircle, Clock, CheckCircle2, PlayCircle, Phone, MessageSquare, Bell } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { CreateComplaintDialog } from "@/components/CreateComplaintDialog";
 import { ComplaintChat } from "@/components/ComplaintChat";
@@ -37,6 +37,7 @@ const StudentDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [expandedChats, setExpandedChats] = useState<Set<string>>(new Set());
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     checkUser();
@@ -46,14 +47,15 @@ const StudentDashboard = () => {
     if (!user) return;
 
     // Subscribe to real-time changes on user's complaints
-    const channel = supabase
+    const complaintsChannel = supabase
       .channel('student_complaints')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'complaints'
+          table: 'complaints',
+          filter: `student_id=eq.${user.id}`
         },
         () => {
           loadComplaints();
@@ -61,10 +63,54 @@ const StudentDashboard = () => {
       )
       .subscribe();
 
+    // Subscribe to real-time changes on messages for notifications
+    const messagesChannel = supabase
+      .channel('student_messages')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'complaint_messages'
+        },
+        () => {
+          loadUnreadCount();
+        }
+      )
+      .subscribe();
+
+    // Load initial unread count
+    loadUnreadCount();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(complaintsChannel);
+      supabase.removeChannel(messagesChannel);
     };
   }, [user]);
+
+  const loadUnreadCount = async () => {
+    if (!user) return;
+    
+    // Get user's complaint IDs
+    const { data: userComplaints } = await supabase
+      .from('complaints')
+      .select('id')
+      .eq('student_id', user.id);
+    
+    if (!userComplaints) return;
+    
+    const complaintIds = userComplaints.map(c => c.id);
+    
+    // Count unread messages in user's complaints
+    const { count } = await supabase
+      .from('complaint_messages')
+      .select('*', { count: 'exact', head: true })
+      .in('complaint_id', complaintIds)
+      .is('read_at', null)
+      .neq('sender_id', user.id);
+    
+    setUnreadCount(count || 0);
+  };
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -148,11 +194,22 @@ const StudentDashboard = () => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <BrotoLogo />
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
-              <a href="tel:8900089000" className="flex items-center gap-2 text-emergency hover:text-emergency/80 transition-colors text-sm">
-                <Phone className="h-4 w-4" />
-                <span className="font-semibold">Emergency: 89000 89000</span>
+              <a href="tel:8900089000" className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-emergency hover:text-emergency/80 transition-colors text-sm">
+                <div className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  <span className="font-semibold">Emergency:</span>
+                </div>
+                <span className="font-semibold sm:ml-0 ml-6">89000 89000</span>
               </a>
               <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="relative">
+                  <Bell className="h-5 w-5 text-muted-foreground" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </div>
                 <div className="text-left flex-1 sm:flex-initial">
                   <p className="font-semibold text-sm">{profile?.name}</p>
                   <p className="text-xs text-muted-foreground">{profile?.student_id} • {profile?.batch}</p>
