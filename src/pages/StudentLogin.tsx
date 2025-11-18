@@ -105,7 +105,7 @@ const StudentLogin = () => {
         variant="ghost"
         size="sm"
         onClick={() => navigate('/')}
-        className="absolute top-4 left-4 text-blue-600 hover:text-blue-800"
+        className="absolute top-4 left-4 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors"
       >
         <Home className="h-4 w-4 mr-2" />
         Home

@@ -79,12 +79,22 @@ export const ComplaintChat = ({ complaintId, currentUserId }: ComplaintChatProps
       return;
     }
 
+    if (!messagesData || messagesData.length === 0) {
+      setMessages([]);
+      setLoading(false);
+      return;
+    }
+
     // Get sender profiles
     const senderIds = [...new Set(messagesData.map(m => m.sender_id))];
-    const { data: profiles } = await supabase
+    const { data: profiles, error: profileError } = await supabase
       .from('profiles')
       .select('id, name, role')
       .in('id', senderIds);
+
+    if (profileError) {
+      console.error("Error fetching profiles:", profileError);
+    }
 
     const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
     
@@ -96,8 +106,8 @@ export const ComplaintChat = ({ complaintId, currentUserId }: ComplaintChatProps
           name: profile.role === 'admin' ? 'Admin' : profile.name,
           role: profile.role
         } : {
-          name: 'Unknown',
-          role: 'student'
+          name: 'Admin',
+          role: 'admin'
         }
       };
     });

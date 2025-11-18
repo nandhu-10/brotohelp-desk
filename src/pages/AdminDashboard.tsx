@@ -12,6 +12,7 @@ import type { User } from "@supabase/supabase-js";
 import { UpdateComplaintDialog } from "@/components/UpdateComplaintDialog";
 import { ComplaintChat } from "@/components/ComplaintChat";
 import { formatDistanceToNow, isToday, parseISO } from "date-fns";
+import { NotificationDropdown } from "@/components/NotificationDropdown";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -47,7 +48,6 @@ const AdminDashboard = () => {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [activeTab, setActiveTab] = useState("today");
   const [expandedChats, setExpandedChats] = useState<Set<string>>(new Set());
-  const [unreadCount, setUnreadCount] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   
   // Filter states
@@ -79,46 +79,14 @@ const AdminDashboard = () => {
       )
       .subscribe();
 
-    // Subscribe to real-time changes on messages for notifications
-    const messagesChannel = supabase
-      .channel('admin_messages')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'complaint_messages'
-        },
-        () => {
-          loadUnreadCount();
-        }
-      )
-      .subscribe();
-
-    // Load initial unread count
-    loadUnreadCount();
-
     return () => {
       supabase.removeChannel(complaintsChannel);
-      supabase.removeChannel(messagesChannel);
     };
   }, [user]);
 
   useEffect(() => {
     applyFilters();
   }, [complaints, activeTab, filterDate, filterCategory, filterStudentId, filterStatus]);
-
-  const loadUnreadCount = async () => {
-    if (!user) return;
-    
-    const { count } = await supabase
-      .from('complaint_messages')
-      .select('*', { count: 'exact', head: true })
-      .is('read_at', null)
-      .neq('sender_id', user.id);
-    
-    setUnreadCount(count || 0);
-  };
 
   const applyFilters = () => {
     let filtered = [...complaints];
@@ -266,23 +234,22 @@ const AdminDashboard = () => {
                 </div>
                 <span className="font-semibold sm:ml-0 ml-6">89000 89000</span>
               </a>
-              <div className="flex items-center gap-4 w-full sm:w-auto">
-                <button 
-                  className="relative cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={() => {
-                    if (unreadCount > 0) {
-                      toast.info(`You have ${unreadCount} unread message${unreadCount > 1 ? 's' : ''}`);
-                    }
-                  }}
-                  title={unreadCount > 0 ? `${unreadCount} unread messages` : 'No unread messages'}
-                >
-                  <Bell className="h-5 w-5 text-muted-foreground" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </button>
+              <div className="flex items-center gap-3 lg:gap-4 w-full sm:w-auto">
+                {user && (
+                  <NotificationDropdown 
+                    currentUserId={user.id}
+                    onMessageClick={(complaintId) => {
+                      const newSet = new Set(expandedChats);
+                      newSet.add(complaintId);
+                      setExpandedChats(newSet);
+                      // Scroll to the complaint
+                      setTimeout(() => {
+                        const element = document.getElementById(`complaint-${complaintId}`);
+                        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 100);
+                    }}
+                  />
+                )}
                 <div className="text-left flex-1 sm:flex-initial min-w-0">
                   <div className="flex items-center gap-2">
                     <Shield className="h-4 w-4 text-primary flex-shrink-0" />
@@ -421,7 +388,7 @@ const AdminDashboard = () => {
                       </h3>
                       <div className="grid gap-3 md:gap-4">
                         {statusComplaints.map((complaint) => (
-                          <Card key={complaint.id} className={complaint.status === 'emergency' ? 'border-emergency' : ''}>
+                          <Card key={complaint.id} id={`complaint-${complaint.id}`} className={complaint.status === 'emergency' ? 'border-emergency' : ''}>
                             <CardHeader className="pb-3">
                               <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
                                 <div className="space-y-1 flex-1">

@@ -12,6 +12,7 @@ import { CreateComplaintDialog } from "@/components/CreateComplaintDialog";
 import { ComplaintChat } from "@/components/ComplaintChat";
 import { formatDistanceToNow } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { NotificationDropdown } from "@/components/NotificationDropdown";
 
 interface Profile {
   name: string;
@@ -37,7 +38,6 @@ const StudentDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [expandedChats, setExpandedChats] = useState<Set<string>>(new Set());
-  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     checkUser();
@@ -63,54 +63,10 @@ const StudentDashboard = () => {
       )
       .subscribe();
 
-    // Subscribe to real-time changes on messages for notifications
-    const messagesChannel = supabase
-      .channel('student_messages')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'complaint_messages'
-        },
-        () => {
-          loadUnreadCount();
-        }
-      )
-      .subscribe();
-
-    // Load initial unread count
-    loadUnreadCount();
-
     return () => {
       supabase.removeChannel(complaintsChannel);
-      supabase.removeChannel(messagesChannel);
     };
   }, [user]);
-
-  const loadUnreadCount = async () => {
-    if (!user) return;
-    
-    // Get user's complaint IDs
-    const { data: userComplaints } = await supabase
-      .from('complaints')
-      .select('id')
-      .eq('student_id', user.id);
-    
-    if (!userComplaints) return;
-    
-    const complaintIds = userComplaints.map(c => c.id);
-    
-    // Count unread messages in user's complaints
-    const { count } = await supabase
-      .from('complaint_messages')
-      .select('*', { count: 'exact', head: true })
-      .in('complaint_id', complaintIds)
-      .is('read_at', null)
-      .neq('sender_id', user.id);
-    
-    setUnreadCount(count || 0);
-  };
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -201,23 +157,22 @@ const StudentDashboard = () => {
                 </div>
                 <span className="font-semibold sm:ml-0 ml-6">89000 89000</span>
               </a>
-              <div className="flex items-center gap-4 w-full sm:w-auto">
-                <button 
-                  className="relative cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={() => {
-                    if (unreadCount > 0) {
-                      toast.info(`You have ${unreadCount} unread message${unreadCount > 1 ? 's' : ''}`);
-                    }
-                  }}
-                  title={unreadCount > 0 ? `${unreadCount} unread messages` : 'No unread messages'}
-                >
-                  <Bell className="h-5 w-5 text-muted-foreground" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </button>
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                {user && (
+                  <NotificationDropdown 
+                    currentUserId={user.id}
+                    onMessageClick={(complaintId) => {
+                      const newSet = new Set(expandedChats);
+                      newSet.add(complaintId);
+                      setExpandedChats(newSet);
+                      // Scroll to the complaint
+                      setTimeout(() => {
+                        const element = document.getElementById(`complaint-${complaintId}`);
+                        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 100);
+                    }}
+                  />
+                )}
                 <div className="text-left flex-1 sm:flex-initial min-w-0">
                   <p className="font-semibold text-sm truncate">{profile?.name}</p>
                   <p className="text-xs text-muted-foreground truncate">{profile?.student_id} • {profile?.batch}</p>
@@ -261,7 +216,7 @@ const StudentDashboard = () => {
         ) : (
           <div className="grid gap-3 md:gap-4">
             {complaints.map((complaint) => (
-              <Card key={complaint.id} className={complaint.status === 'emergency' ? 'border-emergency' : ''}>
+              <Card key={complaint.id} id={`complaint-${complaint.id}`} className={complaint.status === 'emergency' ? 'border-emergency' : ''}>
                 <CardHeader className="pb-3">
                   <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
                     <div className="space-y-1 flex-1">

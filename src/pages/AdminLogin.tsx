@@ -95,7 +95,7 @@ const AdminLogin = () => {
         variant="ghost"
         size="sm"
         onClick={() => navigate('/')}
-        className="absolute top-4 left-4 text-primary hover:text-primary/80"
+        className="absolute top-4 left-4 text-primary hover:bg-primary hover:text-white transition-colors"
       >
         <Home className="h-4 w-4 mr-2" />
         Home
