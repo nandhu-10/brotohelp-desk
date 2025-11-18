@@ -191,9 +191,9 @@ const StudentDashboard = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-3 md:py-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <BrotoLogo />
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full lg:w-auto">
               <a href="tel:8900089000" className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-emergency hover:text-emergency/80 transition-colors text-sm">
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4" />
@@ -201,20 +201,28 @@ const StudentDashboard = () => {
                 </div>
                 <span className="font-semibold sm:ml-0 ml-6">89000 89000</span>
               </a>
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <div className="relative">
+              <div className="flex items-center gap-4 w-full sm:w-auto">
+                <button 
+                  className="relative cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => {
+                    if (unreadCount > 0) {
+                      toast.info(`You have ${unreadCount} unread message${unreadCount > 1 ? 's' : ''}`);
+                    }
+                  }}
+                  title={unreadCount > 0 ? `${unreadCount} unread messages` : 'No unread messages'}
+                >
                   <Bell className="h-5 w-5 text-muted-foreground" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                      {unreadCount}
+                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                      {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                   )}
+                </button>
+                <div className="text-left flex-1 sm:flex-initial min-w-0">
+                  <p className="font-semibold text-sm truncate">{profile?.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{profile?.student_id} • {profile?.batch}</p>
                 </div>
-                <div className="text-left flex-1 sm:flex-initial">
-                  <p className="font-semibold text-sm">{profile?.name}</p>
-                  <p className="text-xs text-muted-foreground">{profile?.student_id} • {profile?.batch}</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleLogout}>
+                <Button variant="outline" size="sm" onClick={handleLogout} className="flex-shrink-0">
                   <LogOut className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Logout</span>
                 </Button>

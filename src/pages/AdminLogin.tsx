@@ -90,19 +90,19 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-primary/5 to-primary/10">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-primary/5 to-primary/10 relative">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate('/')}
+        className="absolute top-4 left-4 text-primary hover:text-primary/80"
+      >
+        <Home className="h-4 w-4 mr-2" />
+        Home
+      </Button>
       <Card className="w-full max-w-md border-2 border-primary/30 bg-gradient-to-br from-card to-primary/5">
         <CardHeader className="space-y-4">
-          <div className="flex justify-between items-start">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="text-primary hover:text-primary/80"
-            >
-              <Home className="h-4 w-4 mr-2" />
-              Home
-            </Button>
+          <div className="flex justify-center">
             <BrotoLogo />
           </div>
           <div className="flex items-center justify-center gap-2">
