@@ -100,19 +100,19 @@ const StudentLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-blue-500/5 to-blue-500/10">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-blue-500/5 to-blue-500/10 relative">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate('/')}
+        className="absolute top-4 left-4 text-blue-600 hover:text-blue-800"
+      >
+        <Home className="h-4 w-4 mr-2" />
+        Home
+      </Button>
       <Card className="w-full max-w-md border-2 border-blue-500/30 bg-gradient-to-br from-card to-blue-500/5">
         <CardHeader className="space-y-4">
-          <div className="flex justify-between items-start">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="text-blue-600 hover:text-blue-800"
-            >
-              <Home className="h-4 w-4 mr-2" />
-              Home
-            </Button>
+          <div className="flex justify-center">
             <BrotoLogo />
           </div>
           <div className="flex items-center justify-center gap-2">
