@@ -235,21 +235,23 @@ const AdminDashboard = () => {
                 <span className="font-semibold sm:ml-0 ml-6">89000 89000</span>
               </a>
               <div className="flex items-center gap-3 lg:gap-4 w-full sm:w-auto">
-                {user && (
-                  <NotificationDropdown 
-                    currentUserId={user.id}
-                    onMessageClick={(complaintId) => {
-                      const newSet = new Set(expandedChats);
-                      newSet.add(complaintId);
-                      setExpandedChats(newSet);
-                      // Scroll to the complaint
-                      setTimeout(() => {
-                        const element = document.getElementById(`complaint-${complaintId}`);
-                        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      }, 100);
-                    }}
-                  />
-                )}
+              {user && (
+                <NotificationDropdown 
+                  currentUserId={user.id}
+                  onMessageClick={(complaintId) => {
+                    const newSet = new Set(expandedChats);
+                    newSet.add(complaintId);
+                    setExpandedChats(newSet);
+                    // Scroll to the complaint with better timing
+                    setTimeout(() => {
+                      const element = document.getElementById(`complaint-${complaintId}`);
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }
+                    }, 300);
+                  }}
+                />
+              )}
                 <div className="text-left flex-1 sm:flex-initial min-w-0">
                   <div className="flex items-center gap-2">
                     <Shield className="h-4 w-4 text-primary flex-shrink-0" />
