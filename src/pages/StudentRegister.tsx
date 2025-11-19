@@ -165,6 +165,7 @@ const StudentRegister = () => {
                 type="password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="pr-10"
                 required
               />
               {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
