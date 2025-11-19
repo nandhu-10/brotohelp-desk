@@ -108,6 +108,10 @@ const StudentDashboard = () => {
     setLoading(false);
   };
 
+  // Separate active and resolved complaints
+  const activeComplaints = complaints.filter(c => c.status !== 'resolved');
+  const resolvedComplaints = complaints.filter(c => c.status === 'resolved');
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/student/login');
@@ -188,6 +192,16 @@ const StudentDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6 md:py-8">
+        {/* Auto-deletion notice */}
+        <Card className="mb-6 border-muted bg-muted/50">
+          <CardContent className="py-3 px-4">
+            <p className="text-sm text-muted-foreground flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+              <span>Complaints that are resolved will be automatically deleted after 1 week.</span>
+            </p>
+          </CardContent>
+        </Card>
+
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold">My Complaints</h1>
@@ -214,8 +228,13 @@ const StudentDashboard = () => {
             </div>
           </Card>
         ) : (
-          <div className="grid gap-3 md:gap-4">
-            {complaints.map((complaint) => (
+          <div className="space-y-8">
+            {/* Active Complaints Section */}
+            {activeComplaints.length > 0 && (
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Active Complaints</h2>
+                <div className="grid gap-3 md:gap-4">
+                  {activeComplaints.map((complaint) => (
               <Card key={complaint.id} id={`complaint-${complaint.id}`} className={complaint.status === 'emergency' ? 'border-emergency' : ''}>
                 <CardHeader className="pb-3">
                   <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
@@ -268,8 +287,75 @@ const StudentDashboard = () => {
                     </CollapsibleContent>
                   </Collapsible>
                 </CardContent>
-              </Card>
-            ))}
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Resolved Complaints Section */}
+            {resolvedComplaints.length > 0 && (
+              <div>
+                <h2 className="text-xl font-semibold mb-4 text-muted-foreground">Resolved Complaints</h2>
+                <div className="grid gap-3 md:gap-4">
+                  {resolvedComplaints.map((complaint) => (
+                    <Card key={complaint.id} id={`complaint-${complaint.id}`} className="opacity-75">
+                      <CardHeader className="pb-3">
+                        <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                          <div className="space-y-1 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <CardTitle className="text-base md:text-lg capitalize">{complaint.category.replace('_', ' ')}</CardTitle>
+                              <Badge variant={getStatusColor(complaint.status) as any} className="flex items-center gap-1 text-xs">
+                                {getStatusIcon(complaint.status)}
+                                <span className="hidden sm:inline">{complaint.status.replace('_', ' ')}</span>
+                              </Badge>
+                            </div>
+                            <CardDescription className="text-xs md:text-sm">
+                              {formatDistanceToNow(new Date(complaint.created_at), { addSuffix: true })}
+                            </CardDescription>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3 md:space-y-4">
+                        <div>
+                          <h4 className="font-semibold mb-1 text-sm md:text-base">Description</h4>
+                          <p className="text-muted-foreground text-sm md:text-base">{complaint.description}</p>
+                        </div>
+                        {complaint.admin_feedback && (
+                          <div className="bg-muted p-3 md:p-4 rounded-lg">
+                            <h4 className="font-semibold mb-1 text-sm md:text-base">Admin Response</h4>
+                            <p className="text-xs md:text-sm">{complaint.admin_feedback}</p>
+                          </div>
+                        )}
+                        
+                        <Collapsible
+                          open={expandedChats.has(complaint.id)}
+                          onOpenChange={(open) => {
+                            const newSet = new Set(expandedChats);
+                            if (open) {
+                              newSet.add(complaint.id);
+                            } else {
+                              newSet.delete(complaint.id);
+                            }
+                            setExpandedChats(newSet);
+                          }}
+                        >
+                          <CollapsibleTrigger asChild>
+                            <Button variant="outline" className="w-full text-sm">
+                              <MessageSquare className="h-4 w-4 mr-2" />
+                              {expandedChats.has(complaint.id) ? 'Hide Chat' : 'Chat with Admin'}
+                            </Button>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="mt-3 md:mt-4">
+                            {user && <ComplaintChat complaintId={complaint.id} currentUserId={user.id} />}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

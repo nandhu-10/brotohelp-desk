@@ -33,13 +33,24 @@ export const NotificationDropdown = ({ currentUserId, onMessageClick }: Notifica
   useEffect(() => {
     loadUnreadMessages();
 
-    // Subscribe to new messages
+    // Subscribe to new and updated messages
     const channel = supabase
       .channel('unread_messages_notifications')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
+          schema: 'public',
+          table: 'complaint_messages'
+        },
+        () => {
+          loadUnreadMessages();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
           schema: 'public',
           table: 'complaint_messages'
         },
