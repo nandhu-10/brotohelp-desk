@@ -92,6 +92,7 @@ export const NotificationDropdown = ({ currentUserId, onMessageClick }: Notifica
     const messagesWithDetails = messages.map(msg => {
       const complaint = complaintsMap.get(msg.complaint_id);
       const profile = profilesMap.get(msg.sender_id);
+      const isAdmin = profile?.role === 'admin';
       return {
         ...msg,
         complaint: {
@@ -99,8 +100,8 @@ export const NotificationDropdown = ({ currentUserId, onMessageClick }: Notifica
           description: complaint?.description || ''
         },
         sender: {
-          name: profile?.role === 'admin' ? 'Admin' : (profile?.name || 'Unknown'),
-          role: profile?.role || 'student'
+          name: isAdmin ? 'Admin' : (profile?.name || 'Admin'),
+          role: profile?.role || 'admin'
         }
       };
     });

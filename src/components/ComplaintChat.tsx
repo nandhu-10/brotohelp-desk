@@ -85,6 +85,17 @@ export const ComplaintChat = ({ complaintId, currentUserId }: ComplaintChatProps
       return;
     }
 
+    // Mark messages from others as read
+    const unreadMessages = messagesData.filter(msg => msg.sender_id !== currentUserId);
+    if (unreadMessages.length > 0) {
+      await supabase
+        .from('complaint_messages')
+        .update({ read_at: new Date().toISOString() })
+        .eq('complaint_id', complaintId)
+        .neq('sender_id', currentUserId)
+        .is('read_at', null);
+    }
+
     // Get sender profiles
     const senderIds = [...new Set(messagesData.map(m => m.sender_id))];
     const { data: profiles, error: profileError } = await supabase
@@ -176,7 +187,6 @@ export const ComplaintChat = ({ complaintId, currentUserId }: ComplaintChatProps
                       <div className="flex items-center gap-1.5 md:gap-2 mb-1">
                         <p className="text-[10px] md:text-xs font-semibold">
                           {isCurrentUser ? 'You' : senderName}
-                          {isAdmin && !isCurrentUser && ' (Admin)'}
                         </p>
                         <p className="text-[10px] md:text-xs opacity-70">
                           {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
