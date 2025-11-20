@@ -169,11 +169,13 @@ const StudentDashboard = () => {
                     const newSet = new Set(expandedChats);
                     newSet.add(complaintId);
                     setExpandedChats(newSet);
-                    // Scroll to the complaint with better timing
+                    // Scroll to the complaint with proper offset for header
                     setTimeout(() => {
                       const element = document.getElementById(`complaint-${complaintId}`);
                       if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        const yOffset = -100; // Offset for header
+                        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                        window.scrollTo({ top: y, behavior: 'smooth' });
                       }
                     }, 300);
                   }}
