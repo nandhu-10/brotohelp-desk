@@ -19,7 +19,10 @@ Tailwind CSS
 
 shadcn-ui
 
+
+
 🚀 Key Features
+
 
 🔐 Secure Login
 
@@ -27,12 +30,14 @@ shadcn-ui
 Sample Login credentials:
 
 **Student id: 100
-Password: student1**
+& Password: student1**
+
 
 🧑‍💻 Admin logs in using:
 
 **Email: admin1@brotohelp.com
-Password: admin001**
+& Password: admin001**
+
 
 🎓 Student Features
 
@@ -74,11 +79,13 @@ Automatic movement of resolved complaints to "All Complaints" section
 
 Receive real-time notifications
 
+
 📞 Emergency Support
 
 Students and admin can call the emergency team directly by clicking the Emergency Contact button
 
 Emergency complaints get priority handling
+
 
 🎨 UI/UX
 
