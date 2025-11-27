@@ -29,16 +29,6 @@ shadcn-ui
 🧑‍🎓 Students log in using Student ID + Password
 Sample Login credentials:
 
-**Student id: 100
-& Password: student1**
-
-
-🧑‍💻 Admin logs in using:
-
-**Email: admin1@brotohelp.com
-& Password: admin001**
-
-
 🎓 Student Features
 
 Track complaint progress in real-time
