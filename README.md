@@ -26,8 +26,9 @@ shadcn-ui
 
 🔐 Secure Login
 
-🧑‍🎓 Students log in using Student ID + Password
-Sample Login credentials:
+Students log in using Student ID + Password
+Likewise Admin can login using their assigned email and password.
+
 
 🎓 Student Features
 
