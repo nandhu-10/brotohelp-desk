@@ -99,15 +99,7 @@ Fully responsive — works on all devices
 
 
 
-## How can I edit this code?
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/f8ccf471-a9c2-4c2d-acd7-ce0df8a2ce08) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
 
 
 
