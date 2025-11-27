@@ -1,8 +1,96 @@
-# Welcome to your Lovable project
+
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/f8ccf471-a9c2-4c2d-acd7-ce0df8a2ce08
+
+⭐ About BROTOHELP
+
+BROTOHELP is a simple and friendly complaint-management platform made exclusively for Brototype students.
+It helps students raise complaints, track updates in real-time, and communicate directly with the admin team.
+
+This project is built using:
+
+Vite
+
+React (TypeScript)
+
+Tailwind CSS
+
+shadcn-ui
+
+🚀 Key Features
+
+🔐 Secure Login
+
+🧑‍🎓 Students log in using Student ID + Password
+Sample Login credentials:
+
+**Student id: 100
+Password: student1**
+
+🧑‍💻 Admin logs in using:
+
+**Email: admin1@brotohelp.com
+Password: admin001**
+
+🎓 Student Features
+
+Track complaint progress in real-time
+
+In-app chat with admin for each complaint
+
+Receive live notifications for all updates
+
+Mark issues as emergency using the Raise Emergency option
+
+Resolved complaints are auto-deleted after 1 week
+
+View complaint history and current status
+
+
+🛠️ Admin Features
+
+View all complaints + quick access to:
+
+Today’s complaints
+
+Unresolved complaints
+
+
+Filter by Date, Category, Student ID, Status
+
+Real-time chat with students
+
+Update complaint status:
+
+Pending
+
+In-Review
+
+Resolved
+
+Automatic movement of resolved complaints to "All Complaints" section
+
+Receive real-time notifications
+
+📞 Emergency Support
+
+Students and admin can call the emergency team directly by clicking the Emergency Contact button
+
+Emergency complaints get priority handling
+
+🎨 UI/UX
+
+Clean, minimal and modern UI
+
+Inspired by Brototype Red + Black + White theme
+
+"BROTOHELP" branding with the Brototype logo (small size)
+
+Fully responsive — works on all devices
+
+
 
 ## How can I edit this code?
 
@@ -14,60 +102,6 @@ Simply visit the [Lovable Project](https://lovable.dev/projects/f8ccf471-a9c2-4c
 
 Changes made via Lovable will be committed automatically to this repo.
 
-**Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/f8ccf471-a9c2-4c2d-acd7-ce0df8a2ce08) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
